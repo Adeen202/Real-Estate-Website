@@ -1,0 +1,131 @@
+.hero-wrapper {
+    color: white;
+    padding-bottom: 2rem;
+    padding-top: 2rem;
+    z-index: 1;
+
+}
+
+.hero-container {
+    justify-content: space-around;
+    display: flex;
+    align-items: center;
+}
+
+
+/* left side */
+.hero-left {
+    gap: 2rem;
+    width: 38%;
+}
+
+.hero-title {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-title>h1 {
+    font-weight: 600;
+    font-size: 3.8rem;
+    line-height: 4rem;
+}
+
+
+.orange-circle {
+    width: 4rem;
+    height: 4rem;
+    background: var(--orange-gradient);
+    border-radius: 999px;
+    position: absolute;
+    right: 35%;
+    top: -10%;
+    z-index: -1;
+}
+
+.search-bar {
+    background-color: white;
+    border-radius: 5px;
+    border: 3px solid rgba(120, 120, 120, 0.374);
+    padding: 0.5rem 1rem;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.search-bar>input {
+    border: none;
+    outline: none;
+}
+
+.stats {
+    width: 100%;
+    justify-content: space-between;
+}
+
+.stat>:nth-child(1) {
+    font-size: 2rem;
+}
+
+.stat>:nth-child(1)>:last-child {
+    color: orange;
+}
+
+/* right side */
+.image-container {
+    width: 30rem;
+    height: 30rem;
+    overflow: hidden;
+    border-radius: 15rem 15rem 15rem 15rem;
+    /*  border-radius: 15rem 15rem 0 0; */
+    border: 8px solid rgba(255, 255, 255, 0.12);
+
+}
+
+.image-container>img {
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 768px) {
+    .hero-container {
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .hero-left {
+        width: 100%;
+        align-items: center;
+    }
+
+    .hero-right {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .image-container {
+        width: 90%;
+        height: auto;
+        max-height: 25rem;
+    }
+
+    .hero-title>h1 {
+        text-align: center;
+        font-size: 3.5rem;
+    }
+
+    .stats {
+        justify-content: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .search-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .search-bar>input,
+    .search-bar>button {
+        width: 100%;
+    }
+}

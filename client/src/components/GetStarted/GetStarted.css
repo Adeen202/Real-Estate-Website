@@ -1,0 +1,26 @@
+.i-container {
+    gap: 1.5rem;
+    background: #ffac2f;
+    padding: 2rem;
+    border-radius: 10px;
+    border: 6px solid orange;
+    text-align: center;
+}
+
+.i-container .primaryText {
+    color: white;
+    font-weight: 600;
+}
+
+.i-container .secondaryText {
+    color: rgba(255, 255, 255, 0.587);
+}
+
+.i-container .button {
+    background: rgb(199, 156, 77);
+    border: 2px solid white;
+    box-shadow: var(--shadow);
+    border-radius: 10px;
+
+
+}
