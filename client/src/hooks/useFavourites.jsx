@@ -26,8 +26,9 @@ const useFavourites = () => {
 
     queryRef.current = refetch;
     useEffect(() => {
-        queryRef.current && queryRef.current()
-    }, [userDetails?.token])
+        queryRef.current && queryRef.current();
+    }, [user]);
+
     return { data, isError, isLoading, refetch }
 }
 
