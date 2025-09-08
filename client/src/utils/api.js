@@ -28,21 +28,7 @@ export const useApi = () => {
 
 
 
-    const getAllProperties = async () => {
-        try {
-            const reponse = await api.get("/residency/residencies", {
-                timeout: 10 * 1000,
-            });
-            if (reponse.status === 400 || reponse.status === 500) {
-                throw reponse.data
-            }
-            return reponse.data
-        } catch (error) {
-            //   toast.error("Something went wrong, refresh  and try again");
-            throw error
-        }
 
-    }
 
     const getProperty = async (id) => {
         try {
@@ -174,7 +160,6 @@ export const useApi = () => {
         }
     }
     return {
-        getAllProperties,
         getProperty,
         createUser,
         bookVisit,
@@ -184,4 +169,20 @@ export const useApi = () => {
         getAllBookings,
         createResidency,
     };
+}
+
+export const getAllProperties = async () => {
+    try {
+        const reponse = await api.get("/residency/residencies", {
+            timeout: 10 * 1000,
+        });
+        if (reponse.status === 400 || reponse.status === 500) {
+            throw reponse.data
+        }
+        return reponse.data
+    } catch (error) {
+        //   toast.error("Something went wrong, refresh  and try again");
+        throw error
+    }
+
 }
