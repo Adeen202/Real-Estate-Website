@@ -3,7 +3,7 @@ import { Button, Modal } from '@mantine/core'
 import { DatePicker, DatePickerInput } from '@mantine/dates'
 import userDetailContext from '../../../src/context/UserDetailContext.js'
 import { useMutation } from 'react-query'
-import { bookVisit } from '../../utils/api.js'
+import { useApi } from "../../utils/api.js";
 import { toast } from 'react-toastify'
 import dayjs from 'dayjs'
 
@@ -30,13 +30,20 @@ const BookingModal = ({ opened, setOpened, email, propertyId }) => {
     const { userDetails: { token }, setUserDetails } = useContext(userDetailContext)
 
 
-
+    const { bookVisit } = useApi();
     const { mutate, isLoading } = useMutation({
-        mutationFn: () => bookVisit(value, propertyId, email, token),
-        onSuccess: () => handleBookingSuccess(),
-        onError: ({ response }) => toast.error(response.data.message),
-        onSettled: () => setOpened(false)
-    })
+        mutationFn: async () => {
+            if (!email) throw new Error("User not logged in");
+            await bookVisit(value, propertyId, email); // token handled internally
+        },
+        onSuccess: handleBookingSuccess,
+        onError: (error) => {
+            // show error toast
+            const msg = error?.response?.data?.message || "Failed to book visit";
+            toast.error(msg, { position: "bottom-right" });
+        },
+        onSettled: () => setOpened(false),
+    });
     return (
 
         <Modal
