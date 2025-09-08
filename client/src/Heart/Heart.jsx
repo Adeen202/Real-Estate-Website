@@ -4,7 +4,7 @@ import { AiFillHeart, AiTwotoneCar } from 'react-icons/ai'
 import { useMutation } from 'react-query'
 import { useAuth0 } from '@auth0/auth0-react'
 import UserDetailContext from '../context/UserDetailContext'
-import { toFav } from '../utils/api'
+import { useApi } from "../utils/api";
 import { updateFavourites, checkFavourites } from '../utils/common'
 const Heart = ({ id }) => {
 
@@ -20,22 +20,28 @@ const Heart = ({ id }) => {
         setUserDetails,
     } = useContext(UserDetailContext);
 
+    const { toFav } = useApi();
 
     useEffect(() => {
         setHeartColor(() => checkFavourites(id, favourites))
     }, [favourites])
 
     const { mutate } = useMutation({
-        mutationFn: () => toFav(id, email, token),
+        mutationFn: async () => {
+            if (!email) throw new Error("User not logged in");
+            return await toFav(id, email); // token handled internally
+        },
         onSuccess: () => {
-            setUserDetails((prev) => (
-                {
-                    ...prev,
-                    favourites: updateFavourites(id, prev.favourites)
-                }
-            ))
-        }
-    })
+            setUserDetails((prev) => ({
+                ...prev,
+                favourites: updateFavourites(id, prev.favourites),
+            }));
+        },
+        onError: () => {
+            // optional: show toast if needed
+            toast.error("failed adding favourites")
+        },
+    });
 
     const handleLike = () => {
         if (validateLogin()) {
