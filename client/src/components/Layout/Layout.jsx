@@ -5,46 +5,38 @@ import { Outlet } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import UserDetailContext from '../../context/UserDetailContext';
 import { useMutation } from 'react-query';
-import { useApi } from '../../utils/api.js'
+import { useApi } from '../../utils/api.js';
 import useFavourites from '../../hooks/useFavourites';
 import useBookings from '../../hooks/useBookings';
 
 const Layout = () => {
-
-
-    useFavourites()
-    useBookings()
-    const { isAuthenticated, user, getAccessTokenWithPopup } = useAuth0();
+    const { isAuthenticated, user } = useAuth0();
     const { setUserDetails } = useContext(UserDetailContext);
-const { createUser } = useApi()
-    const { mutate } = useMutation({
-        mutationKey: [user?.email],
-        mutationFn: (token) => createUser(user?.email, token),
+
+    const { createUser } = useApi();
+
+    // Initialize favourites and bookings hooks
+    useFavourites();
+    useBookings();
+
+    // Mutation to register user
+    const { mutate: registerUserMutation } = useMutation({
+        mutationFn: (email) => createUser(email),
+        onError: (err) => console.error("User registration failed:", err),
     });
 
     useEffect(() => {
-        const registerUser = async () => {
-            try {
-                const token = await getAccessTokenSilently({
-                    audience: import.meta.env.VITE_AUTH0_AUDIENCE,
-                });
+        if (isAuthenticated && user?.email) {
+            // Update user details in context
+            setUserDetails((prev) => ({
+                ...prev,
+                email: user.email,
+            }));
 
-                setUserDetails((prev) => ({
-                    ...prev,
-                    token,
-                }));
-
-                mutate(token);
-            } catch (error) {
-                console.error("Failed to get token or register user:", error);
-            }
-        };
-
-        if (isAuthenticated) {
-            registerUser();
+            // Call createUser mutation
+            registerUserMutation(user.email);
         }
-    }, [isAuthenticated, mutate, getAccessTokenSilently, setUserDetails]);
-
+    }, [isAuthenticated, user?.email, setUserDetails, registerUserMutation]);
 
     return (
         <>
