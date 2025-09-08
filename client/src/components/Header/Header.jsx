@@ -37,6 +37,9 @@ const Header = () => {
     const signup = () =>
         login({ authorizationParams: { screen_hint: "signup" } });
 
+  const handleLogin = () => {
+    loginWithRedirect(); // redirect user to Auth0 login page
+  };
     const logout = () =>
         auth0Logout({ logoutParams: { returnTo: window.location.origin } });
 
