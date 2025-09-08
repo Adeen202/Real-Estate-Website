@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react'
 import './PropertyDetail.css'
 import { useMutation, useQuery } from 'react-query'
 import { useLocation } from 'react-router-dom'
-import { getProperty, removeBooking } from '../../utils/api'
+import { useApi } from '../../utils/api'
 import { PuffLoader } from "react-spinners"
 import { FaShower } from 'react-icons/fa'
 import { MdLocationPin, MdMeetingRoom } from 'react-icons/md'
@@ -26,21 +26,20 @@ const PropertyDetail = () => {
     const [modalOpened, setModalOpened] = useState(false)
     const validateLogin = useAuthCheck()
     const { user } = useAuth0()
-
+const { getProperty, removeBooking } = useApi()
     const { userDetails: { token, bookings }, setUserDetails } = useContext(userDetailContext)
 
-    const { mutate: cancelBooking, isLoading: cancelling } = useMutation({
-        mutationFn: () => removeBooking(id, user?.email, token),
+const { mutate: cancelBooking, isLoading: cancelling } = useMutation({
+        mutationFn: () => removeBooking(id, user?.email),
         onSuccess: () => {
             setUserDetails((prev) => ({
-
                 ...prev,
                 bookings: prev.bookings.filter((booking) => booking?.id !== id)
             }))
             toast.success("Booking cancelled", { position: 'bottom-right' })
         }
-
     })
+
 
     if (isLoading) {
         return (
@@ -154,7 +153,7 @@ const PropertyDetail = () => {
                     <Map
                         address={data?.address}
                         city={data?.city}
-                        coountry={data?.country}
+                        country={data?.country}
                     />
                 </div>
 
