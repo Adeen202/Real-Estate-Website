@@ -5,7 +5,7 @@ import { Outlet } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import UserDetailContext from '../../context/UserDetailContext';
 import { useMutation } from 'react-query';
-import { useApi } from '../utils/api'
+import { useApi } from '../utils/api.js'
 import useFavourites from '../../hooks/useFavourites';
 import useBookings from '../../hooks/useBookings';
 
