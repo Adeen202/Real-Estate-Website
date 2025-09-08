@@ -1,35 +1,28 @@
-import React, { useContext, useEffect, useRef } from 'react'
-import UserDetailContext from '../context/UserDetailContext'
-import { useAuth0 } from '@auth0/auth0-react'
-import { useQuery } from 'react-query'
-import { useApi } from "../utils/api";
+import { useEffect, useContext } from 'react';
+import { useApi } from '../utils/api';
+import UserDetailContext from '../context/UserDetailContext';
+import { toast } from 'react-toastify';
 
-const useFavourites = () => {
+const useBookings = () => {
+    const { getAllBookings } = useApi();
+    const { userDetails: { email, bookings }, setUserDetails } = useContext(UserDetailContext);
 
-    const { userDetails, setUserDetails } = useContext(UserDetailContext)
-    const queryRef = useRef()
-    const { user } = useAuth0()
-    const { getAllFav } = useApi();
-    const { data, isLoading, isError, refetch } = useQuery(
-        "allFavourites",
-        async () => {
-            if (!user) return [];
-            return await getAllFav(user.email); // just pass email, token is handled internally
-        },
-        {
-            onSuccess: (data) =>
-                setUserDetails((prev) => ({ ...prev, favourites: data })),
-            enabled: !!user,
-            staleTime: 30000,
-        }
-    );
-
-    queryRef.current = refetch;
     useEffect(() => {
-        queryRef.current && queryRef.current();
-    }, [user]);
+        const fetchBookings = async () => {
+            if (!email) return; // Wait for user email
+            try {
+                const allBookings = await getAllBookings(email);
+                setUserDetails(prev => ({ ...prev, bookings: allBookings }));
+            } catch (err) {
+                toast.error("Failed to load bookings");
+                console.error(err);
+            }
+        };
 
-    return { data, isError, isLoading, refetch }
-}
+        fetchBookings();
+    }, [email, getAllBookings, setUserDetails]);
 
-export default useFavourites
+    return bookings;
+};
+
+export default useBookings;
