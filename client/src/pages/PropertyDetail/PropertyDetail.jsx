@@ -59,6 +59,10 @@ const PropertyDetail = () => {
         </div>
     }
 
+    const isBooked = bookings?.some((booking) => booking?.id === id);
+    const bookedDate = bookings?.find((booking) => booking?.id === id)?.date;
+
+
     return (
         <div className="wrapper">
             <div className="flexColStart paddings innerWidth property-container">
@@ -113,7 +117,7 @@ const PropertyDetail = () => {
                         </span>
                     </div>
 
-                    {bookings?.map((booking) => booking.id).includes(id) ? (
+                    {isBooked ? (
 
                         <>
                             <Button variant="outline" w={"100%"} color="red" onClick={() => cancelBooking()} disabled={cancelling}>
