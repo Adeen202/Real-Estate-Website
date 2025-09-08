@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import { toast } from 'react-toastify'
 
 export const api = axios.create({
-    baseURL: "https://real-estate-website-two-gamma.vercel.app/api"
+    baseURL: "https://real-estate-website-server-gamma.vercel.app/api"
 })
 
 // Custom hook for API calls
