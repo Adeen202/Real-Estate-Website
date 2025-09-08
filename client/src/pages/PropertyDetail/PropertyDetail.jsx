@@ -1,45 +1,47 @@
-import React, { useState, useContext } from 'react'
-import './PropertyDetail.css'
-import { useMutation, useQuery } from 'react-query'
-import { useLocation } from 'react-router-dom'
-import { useApi } from '../../utils/api'
-import { PuffLoader } from "react-spinners"
-import { FaShower } from 'react-icons/fa'
-import { MdLocationPin, MdMeetingRoom } from 'react-icons/md'
-import { AiTwotoneCar } from 'react-icons/ai'
-import Map from '../../components/Map/Map'
-import useAuthCheck from '../../hooks/useAuthCheck'
-import { useAuth0 } from '@auth0/auth0-react'
-import BookingModal from '../../components/BookingModal/BookingModal'
-import userDetailContext from '../../context/UserDetailContext.js'
-import { Button } from '@mantine/core'
-import { toast } from 'react-toastify'
-import Heart from '../../Heart/Heart.jsx'
+import React, { useState, useContext } from 'react';
+import './PropertyDetail.css';
+import { useMutation, useQuery } from 'react-query';
+import { useLocation } from 'react-router-dom';
+import { useApi } from '../../utils/api';
+import { PuffLoader } from "react-spinners";
+import { FaShower } from 'react-icons/fa';
+import { MdLocationPin, MdMeetingRoom } from 'react-icons/md';
+import { AiTwotoneCar } from 'react-icons/ai';
+import Map from '../../components/Map/Map';
+import useAuthCheck from '../../hooks/useAuthCheck';
+import { useAuth0 } from '@auth0/auth0-react';
+import BookingModal from '../../components/BookingModal/BookingModal';
+import UserDetailContext from '../../context/UserDetailContext.js';
+import { Button } from '@mantine/core';
+import { toast } from 'react-toastify';
+import Heart from '../../Heart/Heart.jsx';
+
 const PropertyDetail = () => {
+    const { pathname } = useLocation();
+    const id = pathname.split("/").slice(-1)[0];
 
+    const { getProperty, removeBooking } = useApi();
+    const { user } = useAuth0();
+    const { userDetails: { bookings }, setUserDetails } = useContext(UserDetailContext);
 
+    const [modalOpened, setModalOpened] = useState(false);
+    const validateLogin = useAuthCheck();
 
-    const { pathname } = useLocation()
-    const id = pathname.split("/").slice(-1)[0]
-    const { data, isLoading, isError } = useQuery(["resd", id], () => getProperty(id));
+    // Fetch property details
+    const { data, isLoading, isError } = useQuery(["property", id], () => getProperty(id));
 
-    const [modalOpened, setModalOpened] = useState(false)
-    const validateLogin = useAuthCheck()
-    const { user } = useAuth0()
-const { getProperty, removeBooking } = useApi()
-    const { userDetails: { token, bookings }, setUserDetails } = useContext(userDetailContext)
-
-const { mutate: cancelBooking, isLoading: cancelling } = useMutation({
+    // Cancel booking mutation
+    const { mutate: cancelBooking, isLoading: cancelling } = useMutation({
         mutationFn: () => removeBooking(id, user?.email),
         onSuccess: () => {
-            setUserDetails((prev) => ({
+            setUserDetails(prev => ({
                 ...prev,
-                bookings: prev.bookings.filter((booking) => booking?.id !== id)
-            }))
-            toast.success("Booking cancelled", { position: 'bottom-right' })
-        }
-    })
-
+                bookings: prev.bookings.filter(booking => booking?.id !== id)
+            }));
+            toast.success("Booking cancelled", { position: 'bottom-right' });
+        },
+        onError: () => toast.error("Failed to cancel booking")
+    });
 
     if (isLoading) {
         return (
@@ -48,30 +50,28 @@ const { mutate: cancelBooking, isLoading: cancelling } = useMutation({
                     <PuffLoader />
                 </div>
             </div>
-        )
+        );
     }
+
     if (isError) {
-        <div className="wrapper">
-            <div className="flexCenter paddings">
-                <span>Error while fetching the property details</span>
+        return (
+            <div className="wrapper">
+                <div className="flexCenter paddings">
+                    <span>Error while fetching the property details</span>
+                </div>
             </div>
-        </div>
+        );
     }
 
-    const isBooked = bookings?.some((booking) => booking?.id === id);
-    const bookedDate = bookings?.find((booking) => booking?.id === id)?.date;
-
+    const isBooked = bookings?.some(booking => booking?.id === id);
 
     return (
         <div className="wrapper">
             <div className="flexColStart paddings innerWidth property-container">
                 <div className="like">
-
                     <Heart id={id} />
-
                 </div>
-
-                <img src={data?.image} alt="home image" />
+                <img src={data?.image} alt="home" />
             </div>
 
             <div className="paddings innerWidth flexCenter property-details">
@@ -80,7 +80,6 @@ const { mutate: cancelBooking, isLoading: cancelling } = useMutation({
                         <span className='primaryText'>{data?.title}<br /></span>
                         <span className='orangeText' style={{ fontSize: '1.5rem' }}>$ {data?.price}</span>
                     </div>
-
 
                     <div className="flexStart facilities">
                         <div className="flexStart facility">
@@ -103,44 +102,37 @@ const { mutate: cancelBooking, isLoading: cancelling } = useMutation({
 
                     <div className="flexStart address" style={{ gap: "1rem" }}>
                         <MdLocationPin size={25} />
-                        <span className='secondaryText'>
-                            {
-                                data?.address
-                            }{" "}
-                            {
-                                data?.city
-                            }{" "}
-                            {
-                                data?.country
-                            }
-                        </span>
+                        <span className='secondaryText'>{data?.address} {data?.city} {data?.country}</span>
                     </div>
 
                     {isBooked ? (
-
                         <>
-                            <Button variant="outline" w={"100%"} color="red" onClick={() => cancelBooking()} disabled={cancelling}>
-                                <span>Cancel Booking</span>
+                            <Button
+                                variant="outline"
+                                w={"100%"}
+                                color="red"
+                                onClick={() => cancelBooking()}
+                                disabled={cancelling}
+                            >
+                                Cancel Booking
                             </Button>
                             <span>
-                                Your visit booked for date {bookings?.filter((booking) => booking?.id === id)[0].date}
+                                Your visit booked for date {bookings?.find(booking => booking?.id === id)?.date}
                             </span>
                         </>
                     ) : (
-                        < button
+                        <button
                             className="button"
                             onClick={() => {
-                                const isValid = validateLogin();
                                 if (validateLogin()) {
-                                    setModalOpened(true)
+                                    setModalOpened(true);
                                 }
-                            }
-                            }
-
+                            }}
                         >
                             Book Your Visit
                         </button>
                     )}
+
                     <BookingModal
                         opened={modalOpened}
                         setOpened={setModalOpened}
@@ -153,14 +145,12 @@ const { mutate: cancelBooking, isLoading: cancelling } = useMutation({
                     <Map
                         address={data?.address}
                         city={data?.city}
-                        country={data?.country}
+                        coountry={data?.country}
                     />
                 </div>
+            </div>
+        </div>
+    );
+};
 
-            </div >
-
-        </div >
-    )
-}
-
-export default PropertyDetail
+export default PropertyDetail;
