@@ -23,24 +23,28 @@ const Layout = () => {
     });
 
     useEffect(() => {
+        const registerUser = async () => {
+            try {
+                const token = await getAccessTokenSilently({
+                    audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+                });
 
-        const getTokenAndRegister = async () => {
-            const res = await getAccessTokenWithPopup({
-                authorizationParams: {
-                    audience: "http://localhost:9000",
-                    scope: "openid profile email"
-                }
-            })
+                setUserDetails((prev) => ({
+                    ...prev,
+                    token,
+                }));
 
-            localStorage.setItem("access_token", res)
-            setUserDetails((prev) => ({
-                ...prev, token: res
-            }))
-            mutate(res)
+                mutate(token);
+            } catch (error) {
+                console.error("Failed to get token or register user:", error);
+            }
         };
 
-        isAuthenticated && getTokenAndRegister()
-    }, [isAuthenticated, mutate]);
+        if (isAuthenticated) {
+            registerUser();
+        }
+    }, [isAuthenticated, mutate, getAccessTokenSilently, setUserDetails]);
+
 
     return (
         <>
