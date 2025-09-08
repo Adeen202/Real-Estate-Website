@@ -6,7 +6,7 @@ import UserDetailContext from "../../context/UserDetailContext";
 import useProperties from "../../hooks/useProperties.jsx";
 import { useMutation } from "react-query";
 import { toast } from "react-toastify";
-import { createResidency } from "../../utils/api";
+import { useApi } from "../../utils/api";
 const Facilities = ({
     prevStep,
     propertyDetails,
@@ -47,15 +47,16 @@ const Facilities = ({
     } = useContext(UserDetailContext);
     const { refetch: refetchProperties } = useProperties();
 
+    const { createResidency } = useApi();
 
     const { mutate, isLoading } = useMutation({
-        mutationFn: () => createResidency({
-            ...propertyDetails, facilities: { bedrooms, parkings, bathrooms },
-        }, token),
-
-
-        onError: ({ response }) => toast.error(response.data.message, { position: "bottom-right" }),
-        onSettled: () => {
+        mutationFn: async () => {
+            return await createResidency({
+                ...propertyDetails,
+                facilities: { bedrooms, parkings, bathrooms },
+            });
+        },
+        onSuccess: () => {
             toast.success("Added Successfully", { position: "bottom-right" });
             setPropertyDetails({
                 title: "",
@@ -71,13 +72,16 @@ const Facilities = ({
                     bathrooms: 0,
                 },
                 userEmail: user?.email,
-            })
-            setOpened(false)
-            setActiveStep(0)
-            refetchProperties()
-        }
-
-    })
+            });
+            setOpened(false);
+            setActiveStep(0);
+            refetchProperties();
+        },
+        onError: (error) => {
+            const msg = error?.response?.data?.message || "Failed to add property";
+            toast.error(msg, { position: "bottom-right" });
+        },
+    });
 
     return (
         <Box maw="30%" mx="auto" my="sm">
